@@ -1,6 +1,7 @@
 <?php
 
 use \Michelf\MarkdownExtra;
+use \Database\Google\Datastore;
 
 class MaterialMarkdownApp extends App implements AppMethods {
 
@@ -78,7 +79,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 
 		$this->variables["app"] = $this;
 
-		$this->_output = (string) $this;
+		$this->_UI_HTMLPage->body["content"] = (string) $this;
 
 		return $this;
 
@@ -121,15 +122,71 @@ class MaterialMarkdownApp extends App implements AppMethods {
 		$first = $this->first;
 
 		ob_start();
-
 		extract($this->variables, EXTR_SKIP);
-		include "/srv/application/apps/MaterialMarkdown/layouts/parts/head.php";
-		include "/srv/application/apps/MaterialMarkdown/layouts/{$this->_layout}.php";
-		include "/srv/application/apps/MaterialMarkdown/layouts/parts/foot.php";
+		include "/srv/applications/MaterialMarkdown/layouts/{$this->_layout}.php";
 
 		return ob_get_clean();
 
 	}
+
+
+	public function getContent() {
+
+		$content = false;
+
+		if(@$this->path[0] === "search") {
+
+			$content = $this->getSearchResultsContent();
+
+		} elseif(file_exists($this->current["file"])) {
+
+			$content = View::fromFile($this->current["file"], $this->variables);
+			$content->useDelimiter = true;
+
+		}
+
+		$content = MarkdownExtra::defaultTransform($content);
+		$content = str_replace("<table>", "<table class=\"table\">", $content);
+		$this->variables['content'] = $content;
+
+		$this->_UI_HTMLPage->body["classes"][] = "no-transition";
+
+		$this->_UI_HTMLPage->css["files"][] = "http://code.band-x.media/SASS-Material-Design-for-Bootstrap/assets/css/material-bootstrap.min.css";
+
+		$this->_UI_HTMLPage->javascript["files"][] = "http://code.band-x.media/SASS-Material-Design-for-Bootstrap/assets/js/material-bootstrap.min.js";
+		$this->_UI_HTMLPage->javascript["files"][] = "https://cdn.rawgit.com/Prinzhorn/skrollr/master/dist/skrollr.min.js";
+		$this->_UI_HTMLPage->javascript["files"][] = "https://cdn.rawgit.com/liabru/jquery-match-height/master/jquery.matchHeight-min.js";
+
+		return $this;
+
+	}
+
+
+
+
+	public function getSearchResultsContent() {
+
+		$results = $this->searchFor(@$_POST["query"], $this->variables["path"] . "/content");
+
+		$resultContent = [];
+
+		if(!empty($results))
+			foreach($results as $result) {
+				$matched = $this->_getNavItemForFile($this->nav, $result);
+				if(!empty($matched)) {
+					$resultContent[] = [
+						"name" => $matched["name"],
+						"href" => $matched["href"]
+					];
+				}
+			}
+
+		ob_start();
+		include "/srv/applications/MaterialMarkdown/layouts/pages/search.php";
+		return ob_get_clean();
+
+	}
+
 
 
 
@@ -148,7 +205,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 
 		ob_start();
 		extract($this->variables, EXTR_SKIP);
-		include "/srv/application/apps/MaterialMarkdown/layouts/parts/toolbar.php";
+		include "/srv/applications/MaterialMarkdown/layouts/parts/toolbar.php";
 		$this->variables["toolbar"] = ob_get_clean();
 
 		return $this;
@@ -163,7 +220,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 
 		ob_start();
 		extract($this->variables, EXTR_SKIP);
-		include "/srv/application/apps/MaterialMarkdown/layouts/parts/nav-drawer.php";
+		include "/srv/applications/MaterialMarkdown/layouts/parts/nav-drawer.php";
 		$this->variables["nav"] = ob_get_clean();
 
 		return $this;
@@ -254,7 +311,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 		ob_start();
 		$items = $this->active[2];
 #		pre($items);
-		include "/srv/application/apps/MaterialMarkdown/layouts/parts/sidebar.php";
+		include "/srv/applications/MaterialMarkdown/layouts/parts/sidebar.php";
 		return ob_get_clean();
 
 	}
@@ -321,55 +378,6 @@ class MaterialMarkdownApp extends App implements AppMethods {
 		$output["content"] = trim(str_replace($metaContent[0], "", $fileContent));
 
 		return $output;
-
-	}
-
-
-	public function getContent() {
-
-		$content = false;
-
-		if(@$this->path[0] === "search") {
-
-			$content = $this->getSearchResultsContent();
-
-		} elseif(file_exists($this->current["file"])) {
-
-			$content = View::fromFile($this->current["file"], $this->variables);
-			$content->useDelimiter = true;
-
-		}
-
-		$content = MarkdownExtra::defaultTransform($content);
-		$content = str_replace("<table>", "<table class=\"table\">", $content);
-
-		$this->variables["content"] = $content;
-
-		return $this;
-
-	}
-
-
-	public function getSearchResultsContent() {
-
-		$results = $this->searchFor(@$_POST["query"], $this->variables["path"] . "/content");
-
-		$resultContent = [];
-
-		if(!empty($results))
-			foreach($results as $result) {
-				$matched = $this->_getNavItemForFile($this->nav, $result);
-				if(!empty($matched)) {
-					$resultContent[] = [
-						"name" => $matched["name"],
-						"href" => $matched["href"]
-					];
-				}
-			}
-
-		ob_start();
-		include "/srv/application/apps/MaterialMarkdown/layouts/pages/search.php";
-		return ob_get_clean();
 
 	}
 

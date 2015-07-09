@@ -21,3 +21,22 @@
 	<?php } ?>
 
 </div>
+
+<a class="btn btn-success btn-block" href="<?php echo Scope::url("api/explorer"); ?>">
+
+	<br />
+
+	<?php echo UI_Icon::create("material", "code", "xxl"); ?>
+
+	<br />
+
+	<span class="h4">Explore the API interactively</span>
+
+	<br />
+
+	Use this interactive tool to debug your<br />API without having to write any code!
+
+	<br />
+	<br />
+
+</a>

@@ -33,6 +33,7 @@
 			<div class="list-item-primary-content">
 				
 				<p class="line-1"><a href="<?php echo $result["href"]; ?>"><?php echo $result["name"]; ?></a></p>
+				<p class="line-3"><?php echo $result["href"]; ?></p>
 
 			</div>
 

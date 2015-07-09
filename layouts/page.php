@@ -1,6 +1,4 @@
 
-	<body class="no-transition">
-
 		<?php echo $nav; ?>
 
 		<nav class="app-bar <?php if(!empty(@$section["children"])) echo 'app-bar-has-tabs '; ?>app-bar-static has-tool-bar app-bar-translucent bg-blue-grey">
@@ -100,13 +98,18 @@
 
 			
 
-			<?php } else { ?>
+			<?php 
 
-			<?php echo $content; ?>
+				} else {
 
-			<?php } ?>
+					if(empty($page["data"]["meta"]->dontAddContainer)) echo "<div class=\"container\">";
 
+					 echo $content;
+
+					if(empty($page["data"]["meta"]->dontAddContainer)) echo "</div>";
+
+				}
+
+			?>
 
 		</div>
-
-	</body>
