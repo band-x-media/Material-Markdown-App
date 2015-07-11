@@ -22,28 +22,18 @@
 
 <?php } else { ?>
 
-<div class="list">
-
 	<?php foreach($resultContent as $result) { ?>
 
-	<div class="list-item">
+	<div class="paper seamless">
 
-		<div class="list-item-content">
-
-			<div class="list-item-primary-content">
-				
-				<p class="line-1"><a href="<?php echo $result["href"]; ?>"><?php echo $result["name"]; ?></a></p>
-				<p class="line-3"><?php echo $result["href"]; ?></p>
-
-			</div>
-
-		</div>
+		<p>
+			<a href="<?php echo $result["href"]; ?>"><?php echo $result["name"]; ?></a><br />
+			<span class="text-muted"><?php echo $result["href"]; ?></span>
+		</p>
 
 	</div>
 
 	<?php } ?>
-
-</div>
 
 <?php } ?>
 

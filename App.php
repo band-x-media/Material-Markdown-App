@@ -1,10 +1,12 @@
 <?php
 
 
-namespace App;
+namespace Freedom\App;
 
+use \Freedom\Framework\System\Base as AppBase;
 
-class MaterialMarkdown extends \App implements \AppMethods {
+class MaterialMarkdown extends AppBase\App implements AppBase\AppMethods {
+
 
 	public	$name = "Material Markdown",
 			$assets = [],
@@ -51,13 +53,16 @@ class MaterialMarkdown extends \App implements \AppMethods {
 
 	public function getCurrentRequestOutput() {
 
-		if(empty($this->path)) Redirect::withoutMessage(Scope::url("home"));
+		if(empty($this->path)) \Redirect::withoutMessage(\Scope::url("home"));
 
 		$this->variables["path"] = $this->getApplicationVariableValue("path");
 
 		$this->variables["siteTitle"] = \Scope::$domain->site_name;
 
 		$this->getToolbar()->getNav()->getContent()->getLayout();
+
+		if(empty(trim($this->variables['content'])) && !empty($this->current['children']))
+			\Redirect::withoutMessage($this->current['children'][0]['href']);
 
 		$this->active[2] = $this->_findActiveNavItemAtLevel($this->nav, 2);
 
@@ -72,15 +77,20 @@ class MaterialMarkdown extends \App implements \AppMethods {
 
 			} else {
 
-				// @todo 404
-
+				\EventTower::fire("app.render.getAlternativeContent", [
+				    "app" => &$this,
+				    "reason" => [
+				        "status" => 404,
+				        "message" => "Content not Found"
+				    ]
+				]);
 			}
 
+		} else {
+
+			$this->page()->body["content"] = (string) $this;
+
 		}
-
-		$this->variables["app"] = $this;
-
-		$this->_UI_HTMLPage->body["content"] = (string) $this;
 
 		return $this;
 
@@ -218,7 +228,7 @@ class MaterialMarkdown extends \App implements \AppMethods {
 
 		$this->nav = $this->_getAllNavItems($this->variables["path"] . "/content");
 		$nav = $this->nav;
-
+#pre($nav);
 		ob_start();
 		extract($this->variables, EXTR_SKIP);
 		include "/srv/applications/MaterialMarkdown/layouts/parts/nav-drawer.php";
