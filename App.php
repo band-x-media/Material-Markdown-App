@@ -1,9 +1,10 @@
 <?php
 
-use \Michelf\MarkdownExtra;
-use \Database\Google\Datastore;
 
-class MaterialMarkdownApp extends App implements AppMethods {
+namespace App;
+
+
+class MaterialMarkdown extends \App implements \AppMethods {
 
 	public	$name = "Material Markdown",
 			$assets = [],
@@ -41,7 +42,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 
 	public function getApplicationVariableValue($name, $domain = false) {
 
-		if(!$domain) $domain = Scope::$domain;
+		if(!$domain) $domain = \Scope::$domain;
 
 		return $domain->applicationVariables[$name];
 
@@ -54,7 +55,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 
 		$this->variables["path"] = $this->getApplicationVariableValue("path");
 
-		$this->variables["siteTitle"] = Scope::$domain->site_name;
+		$this->variables["siteTitle"] = \Scope::$domain->site_name;
 
 		$this->getToolbar()->getNav()->getContent()->getLayout();
 
@@ -67,7 +68,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 
 			if(!empty($this->current["children"])) {
 
-				Redirect::withoutMessage(Scope::url($this->current["children"][0]["href"]));
+				\Redirect::withoutMessage(Scope::url($this->current["children"][0]["href"]));
 
 			} else {
 
@@ -140,12 +141,12 @@ class MaterialMarkdownApp extends App implements AppMethods {
 
 		} elseif(file_exists($this->current["file"])) {
 
-			$content = View::fromFile($this->current["file"], $this->variables);
+			$content = \View::fromFile($this->current["file"], $this->variables);
 			$content->useDelimiter = true;
 
 		}
 
-		$content = MarkdownExtra::defaultTransform($content);
+		$content = \Michelf\MarkdownExtra::defaultTransform($content);
 		$content = str_replace("<table>", "<table class=\"table\">", $content);
 		$this->variables['content'] = $content;
 
@@ -250,7 +251,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 				}
 
 				$item["file"] = $file . "/index.md.php";
-				$item["uri"] = Inflector::slugify($item["name"]);
+				$item["uri"] = \Inflector::slugify($item["name"]);
 
 				$thisURL = $url . "/" . $item["uri"];
 				$item["href"] = $thisURL;
@@ -350,7 +351,7 @@ class MaterialMarkdownApp extends App implements AppMethods {
 	private function _getFileDate($file) {
 
 		$output = [
-			"meta" => new StdClass(),
+			"meta" => new \StdClass(),
 			"content" => false
 		];
 
